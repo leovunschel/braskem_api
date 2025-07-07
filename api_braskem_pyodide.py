@@ -35,11 +35,12 @@ async def get_token(api_key):
         return None
 
 async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
-    url = "/api/consulta-pedagio"  # Usa o endpoint do proxy do Netlify
+    # Usa o URL absoluto do Netlify com o proxy
+    url = "https://braskemapi.netlify.app/api/consulta-pedagio"
     headers = {
         "Authorization": f"Bearer {token}",
         "apiKey": api_key,
-        "Origin": "https://braskemapi.netlify.app"  # Ajustado para o URL do Netlify
+        "Origin": "https://braskemapi.netlify.app"
     }
     payload = {
         "CNPJ": cnpj,
@@ -56,7 +57,13 @@ async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Erro na consulta: {e}")
-        print(f"Detalhes do erro: Status={getattr(response, 'status_code', 'N/A')}, Text={getattr(response, 'text', 'N/A')}, Headers={getattr(response, 'headers', 'N/A')}")
+        # Evita UnboundLocalError removendo acesso a response se não foi definido
+        details = {
+            "Status": "N/A" if 'response' not in locals() else getattr(response, 'status_code', 'N/A'),
+            "Text": "N/A" if 'response' not in locals() else getattr(response, 'text', 'N/A'),
+            "Headers": "N/A" if 'response' not in locals() else getattr(response, 'headers', 'N/A')
+        }
+        print(f"Detalhes do erro: Status={details['Status']}, Text={details['Text']}, Headers={details['Headers']}")
         return None
 
 async def main(cnpj, doc_transporte):
