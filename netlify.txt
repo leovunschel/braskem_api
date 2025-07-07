@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/api/consulta-pedagio"
+  to = "https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
+  status = 200
+  force = true

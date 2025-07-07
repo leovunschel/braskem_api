@@ -35,12 +35,11 @@ async def get_token(api_key):
         return None
 
 async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
-    # Tenta proxy corsproxy.io como alternativa
-    url = "https://corsproxy.io/?https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
+    url = "/api/consulta-pedagio"  # Usa o endpoint do proxy do Netlify
     headers = {
         "Authorization": f"Bearer {token}",
         "apiKey": api_key,
-        "Origin": "https://leovunschel.github.io"  # Adicionado para ajudar no CORS
+        "Origin": "https://braskemapi.netlify.app"  # Ajustado para o URL do Netlify
     }
     payload = {
         "CNPJ": cnpj,
@@ -52,7 +51,7 @@ async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
         )
         print(f"Debug - Consulta Pedágio Response Status: {response.status_code}")
         print(f"Debug - Consulta Pedágio Response Text: {response.text}")
-        print(f"Debug - Consulta Pedágio Headers: {dict(response.headers)}")  # Converte headers para dict
+        print(f"Debug - Consulta Pedágio Headers: {dict(response.headers)}")
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
