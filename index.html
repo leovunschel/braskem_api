@@ -18,6 +18,7 @@
             await pyodide.loadPackage("micropip");
             await pyodide.runPythonAsync(`
                 import micropip
+                await micropip.install('pyodide-http')  # Instala pyodide-http
                 await micropip.install('requests')
             `);
 
