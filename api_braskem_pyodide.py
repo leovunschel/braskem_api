@@ -72,7 +72,3 @@ async def main(cnpj, doc_transporte):
                     print(f"  {subkey}: {subvalue}")
             else:
                 print(f"{key}: {value}")
-
-# Função removida, pois main será chamada diretamente
-# def run_script(cnpj, doc_transporte):
-#     asyncio.run(main(cnpj, doc_transporte))
