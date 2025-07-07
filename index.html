@@ -1,0 +1,84 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html>
+<head>
+    <title>Consulta API Braskem</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <script src="https://unpkg.com/pyodide-http@0.1.0/pyodide_http.js"></script>
+</head>
+<body>
+    <h2>Consulta de Vale Pedágio</h2>
+    <label for="cnpj">CNPJ:</label><input type="text" id="cnpj" placeholder="Digite o CNPJ (somente números)">
+    <label for="doc_transporte">DOC_TRANSPORTE:</label><input type="text" id="doc_transporte" placeholder="Digite a OT (mínimo 4 caracteres)">
+    <button onclick="run()">Executar</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function run() {
+            let pyodide = await loadPyodide();
+            await pyodide.loadPackage("micropip");
+            await pyodide.runPythonAsync(`
+                import micropip
+                await micropip.install('requests')
+            `);
+            let cnpj = document.getElementById('cnpj').value;
+            let doc_transporte = document.getElementById('doc_transporte').value;
+            await pyodide.runPythonAsync(`
+                from api_braskem_pyodide import run_script
+                run_script("${cnpj}", "${doc_transporte}")
+            `);
+            let output = pyodide.runPython("print('')"); // Força saída
+            document.getElementById('output').textContent = output || "Executando... Veja o console para debug.";
+        }
+
+        // Redireciona print para o HTML
+        pyodide.runPython(`
+            import sys
+            sys.stdout = open('/dev/stdout', 'w')
+            def print(*args, **kwargs):
+                from js import document
+                output = ' '.join(str(arg) for arg in args)
+                document.getElementById('output').textContent += output + '\\n'
+            __builtins__.print = print
+        `);
+    </script>
+</body>
+</html>
