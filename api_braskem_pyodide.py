@@ -1,7 +1,7 @@
 import asyncio
 import json
 import sys  # Para redirecionamento de print
-import requests  # Adicionado para suportar chamadas HTTP
+import requests  # Para suportar chamadas HTTP
 import pyodide_http
 
 pyodide_http.patch_all()  # Habilita requests para Pyodide
@@ -35,7 +35,10 @@ async def get_token(api_key):
         return None
 
 async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
+    # URL original
     url = "https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
+    # Proxy CORS temporário (descomente e ajuste se necessário)
+    # url = "https://cors-anywhere.herokuapp.com/" + url
     headers = {
         "Authorization": f"Bearer {token}",
         "apiKey": api_key
@@ -54,6 +57,7 @@ async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Erro na consulta: {e}")
+        print(f"Detalhes do erro: Status={getattr(response, 'status_code', 'N/A')}, Text={getattr(response, 'text', 'N/A')}")
         return None
 
 async def main(cnpj, doc_transporte):
@@ -63,6 +67,7 @@ async def main(cnpj, doc_transporte):
         return
     token = await get_token(api_key)
     if not token:
+        print("Falha ao obter token.")
         return
     dados = await consulta_pedagio(token, api_key, cnpj, doc_transporte)
     if dados:
@@ -74,3 +79,5 @@ async def main(cnpj, doc_transporte):
                     print(f"  {subkey}: {subvalue}")
             else:
                 print(f"{key}: {value}")
+    else:
+        print("Nenhum dado retornado pela API.")
