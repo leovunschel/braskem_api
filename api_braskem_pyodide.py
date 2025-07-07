@@ -35,8 +35,8 @@ async def get_token(api_key):
         return None
 
 async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
-    # Usa proxy CORS para contornar restrições
-    url = "https://cors-anywhere.herokuapp.com/https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
+    # Tenta proxy corsproxy.io como alternativa
+    url = "https://corsproxy.io/?https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
     headers = {
         "Authorization": f"Bearer {token}",
         "apiKey": api_key,
@@ -52,7 +52,7 @@ async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
         )
         print(f"Debug - Consulta Pedágio Response Status: {response.status_code}")
         print(f"Debug - Consulta Pedágio Response Text: {response.text}")
-        print(f"Debug - Consulta Pedágio Headers: {response.headers}")
+        print(f"Debug - Consulta Pedágio Headers: {dict(response.headers)}")  # Converte headers para dict
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
