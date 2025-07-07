@@ -33,13 +33,17 @@
                 document.getElementById('output').textContent = "Preencha todos os campos.";
                 return;
             }
-            // Chama main diretamente como coroutine
-            await pyodide.runPythonAsync(`
-                import asyncio
-                await main("${cnpj}", "${doc_transporte}")
-            `);
+            // Chama main diretamente como coroutine com tratamento de erro
+            try {
+                await pyodide.runPythonAsync(`
+                    import asyncio
+                    await main("${cnpj}", "${doc_transporte}")
+                `);
+            } catch (e) {
+                document.getElementById('output').textContent += "Erro: " + e.message + "\n";
+            }
             let output = pyodide.runPython("''.join(sys.stdout.getvalue().splitlines())") || "Executando... Veja o console para debug.";
-            document.getElementById('output').textContent = output;
+            document.getElementById('output').textContent += output;
         }
 
         // Redireciona print para o HTML
