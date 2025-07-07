@@ -22,6 +22,17 @@
                 await micropip.install('requests')
             `);
 
+            // Aplica o redirecionamento de print antes de executar o script
+            await pyodide.runPython(`
+                import sys
+                from js import document
+                sys.stdout = sys.stderr
+                def print(*args, **kwargs):
+                    output = ' '.join(str(arg) for arg in args)
+                    document.getElementById('output').textContent += output + '\\n'
+                __builtins__.print = print
+            `);
+
             // Carrega e executa o arquivo Python diretamente
             const response = await fetch('api_braskem_pyodide.py');
             const pyScript = await response.text();
@@ -42,20 +53,9 @@
             } catch (e) {
                 document.getElementById('output').textContent += "Erro: " + e.message + "\n";
             }
-            let output = pyodide.runPython("''.join(sys.stdout.getvalue().splitlines())") || "Executando... Veja o console para debug.";
+            let output = pyodide.runPython("''.join(sys.stdout.getvalue().splitlines())") || "Nenhum output capturado.";
             document.getElementById('output').textContent += output;
         }
-
-        // Redireciona print para o HTML
-        pyodide.runPython(`
-            import sys
-            from js import document
-            sys.stdout = sys.stderr
-            def print(*args, **kwargs):
-                output = ' '.join(str(arg) for arg in args)
-                document.getElementById('output').textContent += output + '\\n'
-            __builtins__.print = print
-        `);
     </script>
 </body>
 </html>

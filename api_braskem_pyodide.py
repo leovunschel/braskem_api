@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys  # Adicionado para suportar redirecionamento de print
 import pyodide_http
 
 pyodide_http.patch_all()  # Habilita requests para Pyodide
