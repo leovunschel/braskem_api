@@ -18,14 +18,18 @@
             await pyodide.loadPackage("micropip");
             await pyodide.runPythonAsync(`
                 import micropip
-                await micropip.install('pyodide-http')  # Instala pyodide-http
+                await micropip.install('pyodide-http')
                 await micropip.install('requests')
             `);
 
-            // Carrega o arquivo Python como módulo
+            // Carrega e registra o arquivo Python como módulo
             const response = await fetch('api_braskem_pyodide.py');
             const pyScript = await response.text();
-            await pyodide.runPythonAsync(pyScript);
+            await pyodide.runPythonAsync(`
+                import sys
+                module_code = '''${pyScript.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'''
+                exec(module_code, sys.modules.setdefault('api_braskem_pyodide', {}))
+            `);
 
             let cnpj = document.getElementById('cnpj').value;
             let doc_transporte = document.getElementById('doc_transporte').value;
