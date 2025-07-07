@@ -27,8 +27,9 @@
             const pyScript = await response.text();
             await pyodide.runPythonAsync(`
                 import sys
-                module_code = '''${pyScript.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'''
-                exec(module_code, sys.modules.setdefault('api_braskem_pyodide', {}))
+                module_dict = {}
+                exec('''${pyScript.replace(/'/g, "\\'").replace(/\n/g, '\\n')}''', module_dict)
+                sys.modules['api_braskem_pyodide'] = module_dict
             `);
 
             let cnpj = document.getElementById('cnpj').value;
