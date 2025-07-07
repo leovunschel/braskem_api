@@ -33,9 +33,10 @@
                 document.getElementById('output').textContent = "Preencha todos os campos.";
                 return;
             }
-            // Chama run_script diretamente após executar o script
+            // Chama main diretamente como coroutine
             await pyodide.runPythonAsync(`
-                run_script("${cnpj}", "${doc_transporte}")
+                import asyncio
+                await main("${cnpj}", "${doc_transporte}")
             `);
             let output = pyodide.runPython("''.join(sys.stdout.getvalue().splitlines())") || "Executando... Veja o console para debug.";
             document.getElementById('output').textContent = output;

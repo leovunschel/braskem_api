@@ -56,9 +56,9 @@ async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
 
 async def main(cnpj, doc_transporte):
     api_key = "0zNDZtPILsLDslv04FCnNkjRIpiWBkFi"  # API Key fornecida pela Braskem
-    while len(doc_transporte) < 4:
+    if len(doc_transporte) < 4:
         print("Erro: DOC_TRANSPORTE deve ter pelo menos 4 caracteres.")
-        doc_transporte = await pyodide_js.prompt("Digite a Ordem de Transporte (DOC_TRANSPORTE) - mínimo 4 caracteres: ")
+        return
     token = await get_token(api_key)
     if not token:
         return
@@ -73,6 +73,6 @@ async def main(cnpj, doc_transporte):
             else:
                 print(f"{key}: {value}")
 
-# Função para iniciar via JavaScript
-def run_script(cnpj, doc_transporte):
-    asyncio.run(main(cnpj, doc_transporte))
+# Função removida, pois main será chamada diretamente
+# def run_script(cnpj, doc_transporte):
+#     asyncio.run(main(cnpj, doc_transporte))
