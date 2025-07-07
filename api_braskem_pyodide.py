@@ -35,13 +35,12 @@ async def get_token(api_key):
         return None
 
 async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
-    # URL original
-    url = "https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
-    # Proxy CORS temporário (descomente e ajuste se necessário)
-    # url = "https://cors-anywhere.herokuapp.com/" + url
+    # Usa proxy CORS para contornar restrições
+    url = "https://cors-anywhere.herokuapp.com/https://api.godigibee.io/pipeline/braskem/v1/consulta-pedagio"
     headers = {
         "Authorization": f"Bearer {token}",
-        "apiKey": api_key
+        "apiKey": api_key,
+        "Origin": "https://leovunschel.github.io"  # Adicionado para ajudar no CORS
     }
     payload = {
         "CNPJ": cnpj,
@@ -53,11 +52,12 @@ async def consulta_pedagio(token, api_key, cnpj, doc_transporte):
         )
         print(f"Debug - Consulta Pedágio Response Status: {response.status_code}")
         print(f"Debug - Consulta Pedágio Response Text: {response.text}")
+        print(f"Debug - Consulta Pedágio Headers: {response.headers}")
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Erro na consulta: {e}")
-        print(f"Detalhes do erro: Status={getattr(response, 'status_code', 'N/A')}, Text={getattr(response, 'text', 'N/A')}")
+        print(f"Detalhes do erro: Status={getattr(response, 'status_code', 'N/A')}, Text={getattr(response, 'text', 'N/A')}, Headers={getattr(response, 'headers', 'N/A')}")
         return None
 
 async def main(cnpj, doc_transporte):
